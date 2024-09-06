@@ -10,6 +10,7 @@ import { DatabaseModule } from './core/database/database.module';
 import { RestClientModule } from './core/rest-client/rest-client.module';
 import { StorageModule } from './core/storage/storage.module';
 import { StorageDriver } from './core/storage/types/storage-driver.enum';
+import { EmpleadoModule } from './modules/empleado/empleado.module';
 @Module({
   imports: [
     DatabaseModule.forRoot({
@@ -18,7 +19,7 @@ import { StorageDriver } from './core/storage/types/storage-driver.enum';
     TranslationModule.forRoot(
       process.env.APP_DEFAULT_LOCALE || LANGUAGES.ENGLISH,
     ),
-    StorageModule.forRoot({
+    /* StorageModule.forRoot({
       driver: process.env.STORAGE_DRIVER as StorageDriver,
       s3Config: {
         endPoint: process.env.S3_END_POINT,
@@ -29,13 +30,14 @@ import { StorageDriver } from './core/storage/types/storage-driver.enum';
         objectLocking: process.env.S3_OBJECT_LOCKING === 'true',
         retentionPeriod: parseInt(process.env.S3_RETENTION_PERIOD, 10),
       },
-    }),
+    }), */
     SharedModule.forRoot(),
     RestClientModule,
     AppConfigModule,
     MailPoolModule,
     AuthModule,
     TestModule,
+    EmpleadoModule,
   ],
   providers: [],
 })
