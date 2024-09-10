@@ -3,7 +3,7 @@ import { SHARED_PROVIDERS } from './providers';
 import {
   DATE_FORMAT_ISO_8601_WITHOUT_TIMEZONE,
   MODULE_CONFIG,
-} from './contants';
+} from './constants';
 import { ModuleConfig } from './module-config.type';
 import { LANGUAGES } from '../translation/constants/languages.const';
 import { DateService } from './providers/date.service';
@@ -53,6 +53,7 @@ export class SharedModule {
     }
 
     return {
+      global: true,
       module: SharedModule,
       controllers: [SharedController],
       imports: [

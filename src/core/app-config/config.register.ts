@@ -27,7 +27,7 @@ const DBConfig = registerAs<IDatabaseConfig>(ConfigKey.Db, () => ({
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE,
   hasAuthentication: process.env.DATABASE_HAS_AUTHENTICATION === 'true',
-  authDataBase: process.env.AUTH_DATABASE,
+  authDataBase: process.env.DATABASE_AUTH_DATABASE,
 }));
 
 const S3Config = registerAs<IS3Config>(ConfigKey.S3, () => ({

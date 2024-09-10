@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { minify } from 'html-minifier';
+import { minify } from 'html-minifier-terser';
 import * as sanitizeHtml from 'sanitize-html';
-import { SANITIZE_HTML_OPTIONS } from '../contants';
+import { SANITIZE_HTML_OPTIONS } from '../constants';
 
 @Injectable()
 export class UtilService {
@@ -14,8 +14,8 @@ export class UtilService {
     return sanitizeHtml(html, this.sanitizeHtmlOptions);
   }
 
-  minifyHtml(html: string): string {
-    return minify(html, {
+  async minifyHtml(html: string): Promise<string> {
+    return await minify(html, {
       collapseWhitespace: true,
       conservativeCollapse: true,
       removeComments: true,
@@ -28,7 +28,7 @@ export class UtilService {
     });
   }
 
-  sanitizeAndMinifyHtml(html: string): string {
-    return this.minifyHtml(this.sanitizeHtml(html));
+  async sanitizeAndMinifyHtml(html: string): Promise<string> {
+    return await this.minifyHtml(this.sanitizeHtml(html));
   }
 }

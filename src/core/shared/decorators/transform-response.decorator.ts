@@ -7,4 +7,5 @@ export const TransformResponse = (responseConfig: ResponseConfig) =>
 
 export type ResponseConfig = {
   responseType: ResponseType;
+  options?: Record<string, any>;
 };

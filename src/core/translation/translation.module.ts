@@ -16,6 +16,7 @@ import { LANGUAGES } from './constants/languages.const';
 export class TranslationModule {
   static forRoot(defaultLanguage: string): any {
     return {
+      global: true,
       module: TranslationModule,
       providers: [
         {

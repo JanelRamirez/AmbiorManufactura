@@ -27,7 +27,7 @@ export class HelpService {
   async store(model: Help, controller: any): Promise<any> {
     this._setHelpConfig(controller);
     model.helpKey = this.helpConfig.helpKey;
-    model.body = this.utilService.sanitizeAndMinifyHtml(model.body);
+    model.body = await this.utilService.sanitizeAndMinifyHtml(model.body);
 
     return await this.helpModel.findOneAndUpdate(
       { helpKey: model.helpKey },

@@ -13,7 +13,7 @@ import { ConfigKey } from 'src/core/app-config/enums/config-key.enum';
 import { IAppConfig } from 'src/core/app-config/interfaces/app-config.interface';
 import { MappingErrorException } from '../exceptions/MappingError.exception';
 import { TransformResponseErrorException } from '../exceptions/TransformResponseError.exception';
-import { RemoteErrorException } from 'src/core/rest-client/remote-error.exception';
+//import { RemoteErrorException } from 'src/core/rest-client/remote-error.exception';
 import { SystemLogService } from '../providers/system-log.service';
 
 @Catch(HttpException)
@@ -33,7 +33,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const locale = request.headers['x-locale'] || appCnf.appDefaultLocale;
 
     const status =
-      exception.response.status || HttpStatus.INTERNAL_SERVER_ERROR;
+      exception.status || HttpStatus.INTERNAL_SERVER_ERROR;
+
     let message = '';
     const titleError = this.i18nService.translate('general.httpError', locale);
     switch (status) {
@@ -88,7 +89,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message = this.i18nService.translate('exceptions.bad_gateway', locale);
         break;
 
-      case HttpStatus.SERVICE_UNAVAILABLE:
+      /* case HttpStatus.SERVICE_UNAVAILABLE:
         if (exception instanceof RemoteErrorException) {
           message = this.i18nService.translate(
             'exceptions.remote_error',
@@ -100,7 +101,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           'exceptions.service_unavailable',
           locale,
         );
-        break;
+        break; */
 
       case HttpStatus.GATEWAY_TIMEOUT:
         message = this.i18nService.translate(

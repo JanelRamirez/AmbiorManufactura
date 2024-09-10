@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as moment from 'moment';
 import { IDateServiceOption } from '../interfaces/date-service-option.interface';
-import { MODULE_CONFIG, MOMENT_WRAPPER } from '../contants';
+import { MODULE_CONFIG, MOMENT_WRAPPER } from '../constants';
 import { ModuleConfig } from '../module-config.type';
 import { IDateTimeOffset } from '../interfaces/date-time-offset.interface';
 import { InjectModel } from '@nestjs/mongoose';

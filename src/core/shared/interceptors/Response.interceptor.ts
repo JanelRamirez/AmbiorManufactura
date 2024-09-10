@@ -5,6 +5,7 @@ import {
   CallHandler,
   HttpStatus,
   Logger,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { Observable, catchError, map } from 'rxjs';
 import { IResponse } from '../interfaces/response.interface';
@@ -69,11 +70,17 @@ export class ResponseInterceptor<T>
               },
             };
           case ResponseType.DROPDOWN:
+            const dropdownMapping = responseConfig.options?.dropdownMapping;
+            if (!dropdownMapping) {
+              throw new InternalServerErrorException(
+                this.i18nService.translate("exceptions.dropdown_cnf_error", locale)
+              );
+            }
             const res = (
               Array.isArray(data)
                 ? data.map((item: any) => ({
-                    value: item._id,
-                    label: item.name,
+                    value: item[dropdownMapping.value],
+                    label: item[dropdownMapping.label],
                   }))
                 : []
             ) as T;

@@ -15,5 +15,6 @@
     "help_not_implemented": "El controlador no tiene no tiene la configuración de ayuda.",
     "mapping_error": "Error de mapeo. No se puede mapear la respuesta del servidor.",
     "response_error": "Error de respuesta. No se puede procesar la respuesta del servidor.",
-    "remote_error": "Ocurrió un error en la llamada al servidor remoto."
+    "remote_error": "Ocurrió un error en la llamada al servidor remoto.",
+    "dropdown_cnf_error": "Se requiere mapeo de desplegable para el tipo de respuesta de desplegable."
 }
