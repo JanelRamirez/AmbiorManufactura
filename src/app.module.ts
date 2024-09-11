@@ -8,9 +8,9 @@ import { TestModule } from './modules/test/test.module';
 import { LANGUAGES } from './core/translation/constants/languages.const';
 import { DatabaseModule } from './core/database/database.module';
 import { RestClientModule } from './core/rest-client/rest-client.module';
-import { StorageModule } from './core/storage/storage.module';
-import { StorageDriver } from './core/storage/types/storage-driver.enum';
 import { EmpleadoModule } from './modules/empleado/empleado.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { CategoryModule } from './modules/base-example/base-example.mddule';
 @Module({
   imports: [
     DatabaseModule.forRoot({
@@ -19,6 +19,18 @@ import { EmpleadoModule } from './modules/empleado/empleado.module';
     TranslationModule.forRoot(
       process.env.APP_DEFAULT_LOCALE || LANGUAGES.ENGLISH,
     ),
+    TypeOrmModule.forRoot({
+      type: 'mssql',
+      host: 'localhost',
+      port: 1433,
+      username: 'eduardo.mendez',
+      password: 'Inicio01',
+      database: 'Test1',
+      entities: ['dist/**/*.toEntity.js'],
+      synchronize: true,
+      options: { encrypt: false },
+      autoLoadEntities: true,
+    }),
     /* StorageModule.forRoot({
       driver: process.env.STORAGE_DRIVER as StorageDriver,
       s3Config: {
@@ -38,6 +50,7 @@ import { EmpleadoModule } from './modules/empleado/empleado.module';
     AuthModule,
     TestModule,
     EmpleadoModule,
+    CategoryModule
   ],
   providers: [],
 })

@@ -14,7 +14,7 @@ export class SharedController {
    * Purge the system logs older than 30 days
    */
   @Delete('purge')
-  async purge() {
-    return await this.systemLogService.purge();
+  async deleteSystemLog(): Promise<any> {
+    return await this.systemLogService.purgeSystemLog();
   }
 }

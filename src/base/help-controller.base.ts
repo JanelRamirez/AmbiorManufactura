@@ -1,9 +1,9 @@
 import { Body, Get, HttpException, HttpStatus, Post } from '@nestjs/common';
-import { MapperService } from '../providers/mapper.service';
-import { HelpService } from '../providers/help.service';
-import { Help } from '../models/help.model';
-import { HelpDto } from '../data-transfer-objects/help.dto';
-import { CreateHelpDto } from '../data-transfer-objects/create-help.dto';
+import { MapperService } from '../core/shared/providers/mapper.service';
+import { HelpService } from '../core/shared/providers/help.service';
+import { Help } from '../core/shared/models/help.model';
+import { HelpDto } from '../core/shared/data-transfer-objects/help.dto';
+import { CreateHelpDto } from '../core/shared/data-transfer-objects/create-help.dto';
 
 export class HelpController {
   protected helpService: HelpService;

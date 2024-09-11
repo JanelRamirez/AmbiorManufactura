@@ -6,7 +6,7 @@ import { TransformResponse } from '../../core/shared/decorators/transform-respon
 import { ResponseType } from 'src/core/shared/enums/response-type.enum';
 import { HelpService } from 'src/core/shared/providers/help.service';
 import { HelpConfig } from 'src/core/shared/decorators/help-key.decorator';
-import { HelpController } from 'src/core/shared/base/help-controller.base';
+import { HelpController } from 'src/base/help-controller.base';
 import { MapperService } from 'src/core/shared/providers/mapper.service';
 import { Empleado } from './empleado.entity';
 import { EmpleadoDto } from './empleado.dto';
@@ -25,7 +25,7 @@ export class EmpleadoController extends HelpController {
   }
 
   @Get('all')
-  @TransformResponse({ responseType: ResponseType.DEFAULT })
+  @TransformResponse({ responseType: ResponseType.PAGINATED })
   async getAllEmpleado() {
     const empleados = await this.empleadoService.getEmpleados();
     return this.mapperService.mapArray(empleados, Empleado, EmpleadoDto);

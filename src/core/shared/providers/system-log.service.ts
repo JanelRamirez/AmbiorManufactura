@@ -21,7 +21,7 @@ export class SystemLogService {
   /**
    * Purge the system logs older than 30 days
    */
-  async purge() {
+  async purgeSystemLog(): Promise<any> {
     const date = new Date();
     date.setDate(date.getDate() - 30);
     return await this.model.deleteMany({ createdAt: { $lt: date } });

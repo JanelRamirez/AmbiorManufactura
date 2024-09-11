@@ -6,10 +6,10 @@ import { TransformResponse } from '../../core/shared/decorators/transform-respon
 import { ResponseType } from 'src/core/shared/enums/response-type.enum';
 import { HelpService } from 'src/core/shared/providers/help.service';
 import { HelpConfig } from 'src/core/shared/decorators/help-key.decorator';
-import { HelpController } from 'src/core/shared/base/help-controller.base';
 import { MapperService } from 'src/core/shared/providers/mapper.service';
 import { Test } from './test.entity';
 import { TestDto } from './test.dto';
+import { HelpController } from 'src/base/help-controller.base';
 
 @Controller('api/test')
 @HelpConfig({ helpKey: 'Test' })
