@@ -1,3 +1,4 @@
+import { AutoMap } from '@automapper/classes';
 import { Exclude } from 'class-transformer';
 import { EntityBase } from 'src/base/base.entity';
 import { Column, Entity } from 'typeorm';
@@ -6,8 +7,10 @@ import { Column, Entity } from 'typeorm';
 @Exclude()
 export class CategoryEntity extends EntityBase {
   @Column()
+  @AutoMap()
   name: string;
 
   @Column()
+  @AutoMap()
   quantity: number;
 }

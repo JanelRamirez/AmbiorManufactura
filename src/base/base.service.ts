@@ -1,7 +1,5 @@
 import { FindManyOptions, FindOptionsWhere, Repository } from "typeorm";
 import { EntityBase } from "./base.entity";
-import { BaseCreateDto } from "./dtos/create-base.dto";
-import { BaseUpdateDto } from "./dtos/update-base.dto";
 import { IBaseService } from "./interfaces/base-service.interface";
 import { findByField } from "./utils/find-by-field.utils";
 import { PaginationConstants } from "./constants/pagination.enum";
@@ -9,9 +7,7 @@ import { PaginationConstants } from "./constants/pagination.enum";
 
 export abstract class BaseService<
   T extends EntityBase,
-  createDto extends BaseCreateDto,
-  updateDto extends BaseUpdateDto
-> implements IBaseService<T, createDto, updateDto>
+> implements IBaseService<T>
 {
   constructor(
     private readonly repository: Repository<T>,
@@ -46,26 +42,19 @@ export abstract class BaseService<
     return entity;
     //return this.repository.findOne(id);
   }
-
-  private createObject(dto: createDto | updateDto): T {
-    const newEntity = {} as T;
-    return Object.assign(newEntity, dto);
-  }
-
   /**
    *
    * @param data : the CreateDTO of the submitted entity
    * @returns : The created entity
    */
-  async create(data: createDto): Promise<T> {
-    const newEntity = this.createObject(data);
-    newEntity.isDeleted = false;
+  async create(data: T): Promise<T> {
+    data.isDeleted = false;
     // if (this.request.user) {
-      newEntity.userCreated = 1;
-      newEntity.userUpdated = 1;
+      data.userCreated = 1;
+      data.userUpdated = 1;
     // }
-    const entity = this.repository.create(newEntity as any);
-    return this.repository.save(entity as any);
+    const entity = this.repository.create(data);
+    return this.repository.save(entity);
   }
 
   /**
@@ -74,17 +63,16 @@ export abstract class BaseService<
    * @param dto : the DTO to be assigned for the entity
    * @returns : The modified entity
    */
-  async update(id: number, dto: updateDto): Promise<T> {
-    let newEntity = this.createObject(dto);
+  async update(id: number, data: T): Promise<T> {
     // if (this.request.user) {
-      newEntity.userUpdated = 1;
+      data.userUpdated = 1;
     // }
-    newEntity = await this.repository.preload({
+    data = await this.repository.preload({
       id: (await findByField(this.repository, { id: id }, true)).id,
-      ...dto
+      ...data
     } as any);
 
-    return this.repository.save(newEntity as any);
+    return this.repository.save(data as any);
   }
 
   async delete(id: number): Promise<void> {

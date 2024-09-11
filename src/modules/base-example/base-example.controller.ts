@@ -5,7 +5,7 @@ import { CategoryEntity } from './entity/base-example.toEntity';
 import { CategoryCreateDto } from './dtos/create-base-example.dto';
 import { CategoryUpdateDto } from './dtos/update-base-example.dto';
 import { CategoryService } from './service/base-example.service';
-import { MapperService } from 'src/core/shared/providers/mapper.service';
+import { BaseExampleMapper } from './base-example.mapper';
 
 @Controller('api/category')
 @ApiTags('categories')
@@ -13,11 +13,12 @@ export class CategoryController extends BaseController<
   CategoryEntity,
   CategoryCreateDto,
   CategoryUpdateDto
->(CategoryCreateDto, CategoryUpdateDto) {
+> 
+{
   constructor(
     private readonly categoryService: CategoryService,
-    mapperService: MapperService,
+    private readonly mapper: BaseExampleMapper,
   ) {
-    super(categoryService, mapperService);
+    super(categoryService, mapper);
   }
 }

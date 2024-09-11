@@ -1,64 +1,170 @@
-import {
-  Body,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  Type,
-} from '@nestjs/common';
-import { EntityBase } from './base.entity';
-import { IBaseController } from './interfaces/base-controller.interface';
-import { ApiBody } from '@nestjs/swagger';
-import { IBaseService } from './interfaces/base-service.interface';
-import { MapperService } from 'src/core/shared/providers/mapper.service';
+import { Body, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Request } from "@nestjs/common";
+import { EntityBase } from "./base.entity";
+import { BaseService } from "./base.service";
+import { BaseCreateDto } from "./dtos/create-base.dto";
+import { BaseUpdateDto } from "./dtos/update-base.dto";
+import { ValidatorBase } from "./base.validator";
+import { BaseMapper } from "./base.mapper";
+import { isEmptyObject } from "./utils/empty-object.util";
 
-export function BaseController<T extends EntityBase, createDto, updateDto>(
-  createDto: Type<createDto>,
-  updateDto: Type<updateDto>,
-): Type<IBaseController<T, createDto, updateDto>> {
-  class GenericsController<T extends EntityBase, createDto, updateDto>
-    implements IBaseController<T, createDto, updateDto>
-  {
-    protected mapperService: MapperService;
-    constructor(
-      private readonly service: IBaseService<T, createDto, updateDto>,
-      mapperService: MapperService,
-    ) {
-      this.mapperService = mapperService;
-    }
+export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateDto, TUpdateDto extends BaseUpdateDto> {
+  private readonly _mapper: BaseMapper<TEntity, TDto, TUpdateDto>;
+  private readonly _validator: ValidatorBase<TEntity>;
+  constructor(
+    private readonly baseService: BaseService<TEntity>,
+    mapper: BaseMapper<TEntity, TDto, TUpdateDto>,
+  ) {
+    this._mapper = mapper;
+  }
 
-    @Get()
-    async findAll(): Promise<T[]> {
-      return this.service.findAll();
-    }
+  @Post()
+  async create(@Request() req: any, @Body() dto: TDto) {
+    try {
+      const entity: TEntity = this._mapper.mapToEntity(dto);
+      const validationErrors = await this._validator.validateAsync(entity);
+      if (!isEmptyObject(validationErrors))
+        throw new HttpException(
+          {
+            reason: 'Required fields were not provided.',
+            fields: validationErrors,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
 
-    @Get('paginate')
-    async paginate(@Query('take') take, @Query('skip') skip): Promise<T[]> {
-      return this.service.paginate(+take, +skip);
-    }
-
-    @Get('find/:id')
-    @ApiBody({ required: true, description: 'fetches the entity by ID' })
-    async findOne(@Param('id') id: number): Promise<T> {
-      return this.service.findOne(id);
-    }
-
-    @Post()
-    async create(@Body() dto: createDto): Promise<T> {
-      return this.service.create(dto);
-    }
-
-    @Put(':id')
-    async update(@Param() params, @Body() dto: updateDto): Promise<T> {
-      return this.service.update(params.id, dto);
-    }
-
-    @Delete(':id')
-    async delete(@Param() params): Promise<void> {
-      return this.service.delete(params.id);
+      // const audit: Auditable = {
+      //   createdBy: req.user?.userId ?? 'anonymous',
+      //   createdDate: new Date(),
+      // };
+      // entity.audit = audit;
+      // entity.active = false;
+      return await this.baseService.create(entity);
+    } catch (ex) {
+      throw ex;
     }
   }
-  return GenericsController;
+
+  @Get()
+  async findAll(): Promise<TDto[]> {
+    try {
+      const data = await this.baseService
+        .findAll()
+        .then((res) => {
+          return this._mapper.arrayMapToDto(res);
+        })
+        .catch((err) => {
+          throw new HttpException(
+            `Error fetching all: ${err.message}`,
+            err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        });
+
+      return data;
+    } catch (ex) {
+      throw ex;
+    }
+  }
+
+  // @Post('paginated')
+  // async findAllPaginated(
+  //   @Body() requestPaginated: RequestPaginated,
+  // ): Promise<ResponsePaginated<TDto>> {
+  //   try {
+  //     const data = await this.baseService
+  //       .findAllPaginated(requestPaginated)
+  //       .then((res) => {
+  //         const mappedResult = this._mapper.arrayMapToDto(res.results);
+  //         const result = new ResponsePaginated<TDto>(
+  //           mappedResult,
+  //           res.totalItems,
+  //           res.totalItemsFiltered,
+  //           res.totalPages,
+  //           res.currentPage,
+  //           res.nextPage,
+  //           res.previousPage,
+  //         );
+  //         return result;
+  //       })
+  //       .catch((err) => {
+  //         throw new HttpException(
+  //           `Error fetching all: ${err.message}`,
+  //           err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+  //         );
+  //       });
+
+  //     return data;
+  //   } catch (ex) {
+  //     throw ex;
+  //   }
+  // }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<TDto> {
+    try {
+      const data = await this.baseService
+        .findOne(+id)
+        .then((res) => {
+          return this._mapper.mapToDto(res);
+        })
+        .catch((err) => {
+          throw new HttpException(
+            `Error fetching one: ${err.message}`,
+            err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        });
+      return data;
+    } catch (ex) {
+      throw ex;
+    }
+  }
+
+  @Patch(':id')
+  async update(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() dto: TDto,
+  ) {
+    try {
+      const entity: TEntity = this._mapper.mapToEntity(dto);
+      this.removeUndefinedAndIdProperties(entity);
+
+      const validationErrors = await this._validator.validateAsync(entity);
+      if (!isEmptyObject(validationErrors)) {
+        throw new HttpException(
+          {
+            reason: 'Required fields were not provided.',
+            fields: validationErrors,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      // const audit: Auditable = {
+      //   modifiedBy: req.user?.userId ?? 'anonymous',
+      //   modifiedDate: new Date(),
+      // };
+      // entity.audit = audit;
+      return await this.baseService.update(+id, entity);
+    } catch (ex) {
+      throw ex;
+    }
+  }
+
+  removeUndefinedAndIdProperties(obj: any): void {
+    for (const prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
+        if (
+          obj[prop] === undefined ||
+          obj[prop] === null ||
+          (Array.isArray(obj[prop]) && !obj[prop].length) ||
+          obj[prop] === ''
+        ) {
+          delete obj[prop];
+        }
+      }
+    }
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return await this.baseService.delete(+id);
+  }
 }
