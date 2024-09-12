@@ -3,14 +3,11 @@ import { Exclude } from 'class-transformer';
 import { EntityBase } from 'src/base/base.entity';
 import { Column, Entity } from 'typeorm';
 
-@Entity('category')
+//change the enity name
+@Entity('change-name')
 @Exclude()
-export class CategoryEntity extends EntityBase {
+export class <ModuleName>Entity extends EntityBase {
   @Column()
   @AutoMap()
   name: string;
-
-  @Column()
-  @AutoMap()
-  quantity: number;
 }

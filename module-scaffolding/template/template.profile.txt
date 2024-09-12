@@ -1,0 +1,25 @@
+import { createMap, Mapper } from "@automapper/core";
+import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
+import { Injectable } from "@nestjs/common";
+import { MappingProfile } from "src/core/shared/decorators/mapping-profile.decorator";
+import { <ModuleName>CreateDto } from "./dtos/create-<ModuleFile>.dto";
+import { <ModuleName>UpdateDto } from "./dtos/update-<ModuleFile>.dto";
+import { <ModuleName>Entity } from "./entity/<ModuleFile>.toEntity";
+
+
+@Injectable()
+@MappingProfile()
+export class <ModuleName>Profile extends AutomapperProfile {
+  constructor(@InjectMapper() mapper: Mapper) {
+    super(mapper);
+  }
+
+  override get profile() {
+    return (mapper: Mapper) => {
+      createMap(mapper, <ModuleName>Entity, <ModuleName>CreateDto);
+      createMap(mapper, <ModuleName>CreateDto, <ModuleName>Entity);
+      createMap(mapper, <ModuleName>UpdateDto, <ModuleName>Entity);
+      createMap(mapper, <ModuleName>Entity, <ModuleName>UpdateDto);
+    };
+  }
+}

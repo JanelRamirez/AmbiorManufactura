@@ -13,8 +13,10 @@ export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateD
   constructor(
     private readonly baseService: BaseService<TEntity>,
     mapper: BaseMapper<TEntity, TDto, TUpdateDto>,
+    validator: ValidatorBase<TEntity>,
   ) {
     this._mapper = mapper;
+    this._validator = validator;
   }
 
   @Post()

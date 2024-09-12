@@ -1,0 +1,28 @@
+import { Controller } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { BaseController } from 'src/base/base.controller';
+import { <ModuleName>Entity } from './entity/<ModuleFile>.toEntity';
+import { <ModuleName>CreateDto } from './dtos/create-<ModuleFile>.dto';
+import { <ModuleName>UpdateDto } from './dtos/update-<ModuleFile>.dto';
+import { <ModuleName>Service } from './service/<ModuleFile>.service';
+import { <ModuleName>Mapper } from './<ModuleFile>.mapper';
+import { <ModuleName>Validator } from './<ModuleFile>.validator';
+
+//change de name of the controller
+@Controller('api/change-name')
+//change the api tag
+@ApiTags('change-name')
+export class <ModuleName>Controller extends BaseController<
+  <ModuleName>Entity,
+  <ModuleName>CreateDto,
+  <ModuleName>UpdateDto
+> 
+{
+  constructor(
+    private readonly _<ModuleName>Service: <ModuleName>Service,
+    private readonly _<ModuleName>Mapper: <ModuleName>Mapper,
+    private readonly _<ModuleName>Validator: <ModuleName>Validator,
+  ) {
+    super(_<ModuleName>Service, _<ModuleName>Mapper, _<ModuleName>Validator);
+  }
+}

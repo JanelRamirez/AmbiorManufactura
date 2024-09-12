@@ -1,0 +1,42 @@
+import { Injectable } from '@nestjs/common';
+import { <ModuleName>CreateDto } from './dtos/create-<ModuleFile>.dto';
+import { <ModuleName>UpdateDto } from './dtos/update-<ModuleFile>.dto';
+import { <ModuleName>Entity } from './entity/<ModuleFile>.toEntity';
+import { BaseMapper } from 'src/base/base.mapper';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+
+@Injectable()
+export class <ModuleName>Mapper extends BaseMapper<
+  <ModuleName>Entity,
+  <ModuleName>CreateDto,
+  <ModuleName>UpdateDto
+> {
+  constructor(@InjectMapper() private mapper: Mapper) {
+    super(mapper);
+  }
+
+  override mapToDto(entity: <ModuleName>Entity): <ModuleName>CreateDto {
+    return this.mapper.map<<ModuleName>Entity, <ModuleName>CreateDto>(entity, <ModuleName>Entity, <ModuleName>CreateDto);
+  }
+
+  override mapToUpdateDto(entity: <ModuleName>Entity): <ModuleName>UpdateDto {
+    return this.mapper.map<<ModuleName>Entity, <ModuleName>UpdateDto>(entity, null, null);
+  }
+
+  override mapToEntity(dto: <ModuleName>CreateDto): <ModuleName>Entity {
+    return this.mapper.map<<ModuleName>CreateDto, <ModuleName>Entity>(dto, <ModuleName>CreateDto, <ModuleName>Entity);
+  }
+
+  override arrayMapToDto(entity: <ModuleName>Entity[]): <ModuleName>CreateDto[] {
+    return this.mapper.mapArray<<ModuleName>Entity, <ModuleName>CreateDto>(
+      entity,
+      <ModuleName>Entity,
+      <ModuleName>CreateDto,
+    );
+  }
+
+  override arrayMapToEntity(dto: <ModuleName>CreateDto[]): <ModuleName>Entity[] {
+    return this.mapper.mapArray<<ModuleName>CreateDto, <ModuleName>Entity>(dto, <ModuleName>CreateDto, <ModuleName>Entity);
+  }
+}

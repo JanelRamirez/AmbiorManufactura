@@ -1,0 +1,15 @@
+import { Injectable } from "@nestjs/common";
+import { BaseService } from "src/base/base.service";
+import { <ModuleName>Entity } from "../entity/<ModuleFile>.toEntity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+
+@Injectable()
+export class <ModuleName>Service extends BaseService<<ModuleName>Entity> {
+  constructor(
+    @InjectRepository(<ModuleName>Entity)
+    private readonly _<ModuleName>Repository: Repository<<ModuleName>Entity>
+  ) {
+    super(_<ModuleName>Repository);
+  }
+}

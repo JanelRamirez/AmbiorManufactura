@@ -10,7 +10,6 @@ import { DatabaseModule } from './core/database/database.module';
 import { RestClientModule } from './core/rest-client/rest-client.module';
 import { EmpleadoModule } from './modules/empleado/empleado.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CategoryModule } from './modules/base-example/base-example.mddule';
 @Module({
   imports: [
     DatabaseModule.forRoot({
@@ -50,7 +49,6 @@ import { CategoryModule } from './modules/base-example/base-example.mddule';
     AuthModule,
     TestModule,
     EmpleadoModule,
-    CategoryModule
   ],
   providers: [],
 })
