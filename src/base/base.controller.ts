@@ -1,13 +1,28 @@
-import { Body, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Request } from "@nestjs/common";
-import { EntityBase } from "./base.entity";
-import { BaseService } from "./base.service";
-import { BaseCreateDto } from "./dtos/create-base.dto";
-import { BaseUpdateDto } from "./dtos/update-base.dto";
-import { ValidatorBase } from "./base.validator";
-import { BaseMapper } from "./base.mapper";
-import { isEmptyObject } from "./utils/empty-object.util";
+import {
+  Body,
+  Delete,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Request,
+} from '@nestjs/common';
+import { EntityBase } from './base.entity';
+import { BaseService } from './base.service';
+import { BaseCreateDto } from './dtos/create-base.dto';
+import { BaseUpdateDto } from './dtos/update-base.dto';
+import { ValidatorBase } from './base.validator';
+import { BaseMapper } from './base.mapper';
+import { isEmptyObject } from './utils/empty-object.util';
+import { Private } from 'src/config/decorators/private-route.decorator';
 
-export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateDto, TUpdateDto extends BaseUpdateDto> {
+export class BaseController<
+  TEntity extends EntityBase,
+  TDto extends BaseCreateDto,
+  TUpdateDto extends BaseUpdateDto,
+> {
   private readonly _mapper: BaseMapper<TEntity, TDto, TUpdateDto>;
   private readonly _validator: ValidatorBase<TEntity>;
   constructor(
@@ -19,6 +34,7 @@ export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateD
     this._validator = validator;
   }
 
+  @Private()
   @Post()
   async create(@Request() req: any, @Body() dto: TDto) {
     try {
@@ -44,7 +60,7 @@ export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateD
       throw ex;
     }
   }
-
+  @Private()
   @Get()
   async findAll(): Promise<TDto[]> {
     try {
@@ -99,6 +115,7 @@ export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateD
   //   }
   // }
 
+  @Private()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<TDto> {
     try {
@@ -119,6 +136,7 @@ export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateD
     }
   }
 
+  @Private()
   @Patch(':id')
   async update(
     @Request() req: any,
@@ -150,6 +168,12 @@ export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateD
     }
   }
 
+  @Private()
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return await this.baseService.delete(+id);
+  }
+
   removeUndefinedAndIdProperties(obj: any): void {
     for (const prop in obj) {
       if (obj.hasOwnProperty(prop)) {
@@ -163,10 +187,5 @@ export class BaseController<TEntity extends EntityBase, TDto extends BaseCreateD
         }
       }
     }
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.baseService.delete(+id);
   }
 }
