@@ -10,6 +10,8 @@ import { HelpController } from 'src/base/help-controller.base';
 import { MapperService } from 'src/core/shared/providers/mapper.service';
 import { Empleado } from './empleado.entity';
 import { EmpleadoDto } from './empleado.dto';
+import { Public } from 'src/auth-permission/config/decorators/public-route.decorator';
+
 
 @Controller('api/empleado')
 @HelpConfig({ helpKey: 'Empleado' })
@@ -24,6 +26,7 @@ export class EmpleadoController extends HelpController {
     super(helpService, EmpleadoController, mapperService);
   }
 
+  @Public()
   @Get('all')
   @TransformResponse({ responseType: ResponseType.PAGINATED })
   async getAllEmpleado() {

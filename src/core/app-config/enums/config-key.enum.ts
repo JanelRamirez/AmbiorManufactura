@@ -4,4 +4,5 @@ export enum ConfigKey {
   Ldap = 'LDAP',
   Mail = 'MAIL',
   S3 = 'S3',
+  Auth = 'AUTH',
 }

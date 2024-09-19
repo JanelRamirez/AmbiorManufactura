@@ -1,4 +1,3 @@
-import { ConfigService } from '@nestjs/config';
 import {
   ExecutionContext,
   HttpException,
@@ -6,24 +5,21 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public-route.decorator';
+import { AuthJwtService } from 'src/auth-permission/services/auth-jwt.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   private request = null;
   constructor(
     private reflector: Reflector,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private authService: AuthJwtService
   ) {
     super();
   }
 
   async canActivate(context: ExecutionContext) {
-    console.log(context.getHandler());
-    console.log(context.getClass());
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -45,7 +41,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       );
     }
 
-    const payload = this.validateToken(token);
+    const payload = this.authService.validateToken(token);
 
     if (!payload) {
       //cambiar por el translate
@@ -53,25 +49,5 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     return true;
-  }
-
-  private validateToken(token: string) {
-    try {
-      const key = this.configService.get('JWT_SECRET');
-      const decodedString = Buffer.from(key, 'base64');
-      const test = this.jwtService.verify(token, {
-        ignoreExpiration: false,
-        secret: decodedString,
-      });
-      return test;
-    } catch (error) {
-      throw new HttpException(
-        {
-          error: 'Unauthorized',
-          reason: error.message,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
   }
 }

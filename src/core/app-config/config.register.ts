@@ -5,6 +5,7 @@ import { IDatabaseConfig } from './interfaces/database.interface';
 import { IAppConfig } from './interfaces/app-config.interface';
 import { StorageDriver } from '../storage/types/storage-driver.enum';
 import { IS3Config } from './interfaces/s3-config.interface';
+import { IAuthConfig } from './interfaces/auth-config.interface';
 
 const APPConfig = registerAs<IAppConfig>(ConfigKey.App, () => {
   return {
@@ -40,4 +41,11 @@ const S3Config = registerAs<IS3Config>(ConfigKey.S3, () => ({
   retentionPeriod: Number(process.env.S3_RETENTION_PERIOD),
 }));
 
-export const configurations = [APPConfig, DBConfig, S3Config];
+const AuthConfig = registerAs<IAuthConfig>(ConfigKey.Auth, () => ({
+  secret: process.env.JWT_SECRET,
+url: process.env.AUTHORIZATION_SERVER_URL,
+appId: +process.env.APP_ID
+
+}));
+
+export const configurations = [APPConfig, DBConfig, S3Config, AuthConfig];

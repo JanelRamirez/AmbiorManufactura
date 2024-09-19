@@ -12,10 +12,13 @@ import { RestClientModule } from './core/rest-client/rest-client.module';
 import { EmpleadoModule } from './modules/empleado/empleado.module';
 
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './config/guards/jwt-auth.guard';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtAuthGuard } from './auth-permission/config/guards/jwt-auth.guard';
+import { RolesGuard } from './auth-permission/config/guards/role.guard';
+import { PermissionService } from './auth-permission/services/permission.service';
+import { AuthJwtService } from './auth-permission/services/auth-jwt.service';
+
 @Module({
   imports: [
     DatabaseModule.forRoot({
@@ -36,13 +39,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       options: { encrypt: false },
       autoLoadEntities: true,
     }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-      }),
-    }),
+    JwtModule,
     /* StorageModule.forRoot({
       driver: process.env.STORAGE_DRIVER as StorageDriver,
       s3Config: {
@@ -68,6 +65,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    PermissionService,
+    AuthJwtService
   ],
 })
 export class AppModule {}

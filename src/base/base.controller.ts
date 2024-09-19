@@ -16,7 +16,6 @@ import { BaseUpdateDto } from './dtos/update-base.dto';
 import { ValidatorBase } from './base.validator';
 import { BaseMapper } from './base.mapper';
 import { isEmptyObject } from './utils/empty-object.util';
-import { Private } from 'src/config/decorators/private-route.decorator';
 
 export class BaseController<
   TEntity extends EntityBase,
@@ -34,7 +33,6 @@ export class BaseController<
     this._validator = validator;
   }
 
-  @Private()
   @Post()
   async create(@Request() req: any, @Body() dto: TDto) {
     try {
@@ -60,7 +58,7 @@ export class BaseController<
       throw ex;
     }
   }
-  @Private()
+
   @Get()
   async findAll(): Promise<TDto[]> {
     try {
@@ -115,7 +113,6 @@ export class BaseController<
   //   }
   // }
 
-  @Private()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<TDto> {
     try {
@@ -136,7 +133,6 @@ export class BaseController<
     }
   }
 
-  @Private()
   @Patch(':id')
   async update(
     @Request() req: any,
@@ -168,7 +164,6 @@ export class BaseController<
     }
   }
 
-  @Private()
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.baseService.delete(+id);
