@@ -7,6 +7,7 @@ import { ConfigKey } from 'src/core/app-config/enums/config-key.enum';
 
 @Injectable()
 export class AuthJwtService {
+  private employee: Employee;
   constructor(
     private readonly jwtService: JwtService,
     private readonly cnfService: ConfigService
@@ -21,6 +22,7 @@ export class AuthJwtService {
         ignoreExpiration: false,
         secret: decodedString,
       });
+      this.setEmployee(employee);
       return employee;
     } catch (error) {
       throw new HttpException(
@@ -31,5 +33,12 @@ export class AuthJwtService {
         HttpStatus.UNAUTHORIZED,
       );
     }
+  }
+
+  setEmployee(employee: Employee) {
+    this.employee = employee;
+  }
+  getEmployee(): Employee {
+    return this.employee;
   }
 }

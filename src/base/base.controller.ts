@@ -7,7 +7,6 @@ import {
   Param,
   Patch,
   Post,
-  Request,
 } from '@nestjs/common';
 import { EntityBase } from './base.entity';
 import { BaseService } from './base.service';
@@ -16,6 +15,8 @@ import { BaseUpdateDto } from './dtos/update-base.dto';
 import { ValidatorBase } from './base.validator';
 import { BaseMapper } from './base.mapper';
 import { isEmptyObject } from './utils/empty-object.util';
+import { AuthJwtService } from 'src/auth-permission/services/auth-jwt.service';
+import { Employee } from 'src/auth-permission/models/employee';
 
 export class BaseController<
   TEntity extends EntityBase,
@@ -28,13 +29,14 @@ export class BaseController<
     private readonly baseService: BaseService<TEntity>,
     mapper: BaseMapper<TEntity, TDto, TUpdateDto>,
     validator: ValidatorBase<TEntity>,
+    private authServices: AuthJwtService,
   ) {
     this._mapper = mapper;
     this._validator = validator;
   }
 
   @Post()
-  async create(@Request() req: any, @Body() dto: TDto) {
+  async create(@Body() dto: TDto) {
     try {
       const entity: TEntity = this._mapper.mapToEntity(dto);
       const validationErrors = await this._validator.validateAsync(entity);
@@ -46,13 +48,8 @@ export class BaseController<
           },
           HttpStatus.BAD_REQUEST,
         );
-
-      // const audit: Auditable = {
-      //   createdBy: req.user?.userId ?? 'anonymous',
-      //   createdDate: new Date(),
-      // };
-      // entity.audit = audit;
-      // entity.active = false;
+      const user: Employee = this.authServices.getEmployee();
+      entity.userCreated = +user.Empleado;
       return await this.baseService.create(entity);
     } catch (ex) {
       throw ex;
@@ -134,11 +131,7 @@ export class BaseController<
   }
 
   @Patch(':id')
-  async update(
-    @Request() req: any,
-    @Param('id') id: string,
-    @Body() dto: TDto,
-  ) {
+  async update(@Param('id') id: string, @Body() dto: TDto) {
     try {
       const entity: TEntity = this._mapper.mapToEntity(dto);
       this.removeUndefinedAndIdProperties(entity);
@@ -153,11 +146,8 @@ export class BaseController<
           HttpStatus.BAD_REQUEST,
         );
       }
-      // const audit: Auditable = {
-      //   modifiedBy: req.user?.userId ?? 'anonymous',
-      //   modifiedDate: new Date(),
-      // };
-      // entity.audit = audit;
+      const user: Employee = this.authServices.getEmployee();
+      entity.userUpdated = +user.Empleado;
       return await this.baseService.update(+id, entity);
     } catch (ex) {
       throw ex;
