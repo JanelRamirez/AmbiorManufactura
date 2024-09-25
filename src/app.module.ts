@@ -18,7 +18,6 @@ import { RolesGuard } from './auth-permission/config/guards/role.guard';
 import { PermissionService } from './auth-permission/services/permission.service';
 import { AuthPermissionModule } from './auth-permission/auth-permission.module';
 import { AuditModule } from './base/audit/audit-log.module';
-import { AuditListener } from './base/audit/audit-log.listener';
 
 @Module({
   imports: [
@@ -39,7 +38,6 @@ import { AuditListener } from './base/audit/audit-log.listener';
       synchronize: true,
       options: { encrypt: false },
       autoLoadEntities: true,
-      subscribers: [AuditListener],
     }),
     AuthPermissionModule,
     /* StorageModule.forRoot({

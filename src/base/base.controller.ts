@@ -46,7 +46,15 @@ export class BaseController<
           },
           HttpStatus.BAD_REQUEST,
         );
-      return await this.baseService.create(entity);
+      const result =  await this.baseService.create(entity).then((res) => {
+        return this._mapper.mapToDto(res);
+      }).catch((err) => {
+        throw new HttpException(
+          `Error fetching all: ${err.message}`,
+          err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
+      return result;
     } catch (ex) {
       throw ex;
     }
@@ -142,7 +150,15 @@ export class BaseController<
           HttpStatus.BAD_REQUEST,
         );
       }
-      return await this.baseService.update(+id, entity);
+      const result = await this.baseService.update(+id, entity).then((res) => {
+        return this._mapper.mapToDto(res);
+      }).catch((err) => {
+        throw new HttpException(
+          `Error fetching one: ${err.message}`,
+          err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
+      return result;
     } catch (ex) {
       throw ex;
     }

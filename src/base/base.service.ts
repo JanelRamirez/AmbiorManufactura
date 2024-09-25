@@ -85,11 +85,6 @@ export abstract class BaseService<T extends EntityBase>
     return this.repository.save(data as any);
   }
 
-  // async delete(id: number): Promise<void> {
-  //   await findByField(this.repository, { id }, true);
-  //   await this.repository.delete(id);
-  // }
-
   /**
    *
    * @param id : number of the given entity
@@ -104,24 +99,6 @@ export abstract class BaseService<T extends EntityBase>
       entity.userUpdated = +user.Empleado;
     }
     return await this.repository.save(entity as any);
-  }
-
-  /**
-   * This method deletes permanently from the database
-   */
-  async clear(): Promise<void> {
-    try {
-      await this.repository.clear();
-    } catch (error) {
-      if (error.name === 'MongoError' && error.code === 26) {
-        // Handle "is not found" error
-        // Perform alternative logic or error handling
-        console.log('Collection does not exist. Unable to clear.');
-      } else {
-        // Handle other errors
-        console.log('An error occurred:', error);
-      }
-    }
   }
 
   //   async search(data: QueryDto<T>): Promise<SearchResponse<T>> {

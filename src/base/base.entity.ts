@@ -19,8 +19,6 @@ export abstract class EntityBase {
   @Column()
   protected lastUpdateAt: Date;
 
-  /**************** ACTIONS ****************/
-
   @BeforeInsert()
   @BeforeUpdate()
   private beforeActions() {

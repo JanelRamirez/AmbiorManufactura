@@ -6,6 +6,5 @@ export interface IBaseService<T> {
   findOne(_id: number): Promise<T>;
   delete(_id: number): Promise<T>;
   // delete(_id: number): Promise<void>;
-  clear(): Promise<void>;
   //   search(data?: QueryDto<T>);
 }

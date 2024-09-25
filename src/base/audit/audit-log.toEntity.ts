@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 @Entity()
 export class AuditLog {
   @PrimaryGeneratedColumn()
-  public id: number;
+  public id?: number;
 
   @Column()
   public entityName: string;
@@ -21,5 +21,5 @@ export class AuditLog {
   public actionType: string;
 
   @Column()
-  public timestamp: Date;
+  public timestamp?: Date;
 }
