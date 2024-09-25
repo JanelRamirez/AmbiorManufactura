@@ -1,20 +1,26 @@
-import { FindManyOptions, FindOptionsWhere, Repository } from "typeorm";
-import { EntityBase } from "./base.entity";
-import { IBaseService } from "./interfaces/base-service.interface";
-import { findByField } from "./utils/find-by-field.utils";
-import { PaginationConstants } from "./constants/pagination.enum";
+import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { EntityBase } from './base.entity';
+import { IBaseService } from './interfaces/base-service.interface';
+import { findByField } from './utils/find-by-field.utils';
+import { PaginationConstants } from './constants/pagination.enum';
+import { Inject } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
+import { AuthJwtService } from 'src/auth-permission/services/auth-jwt.service';
+import { Employee } from 'src/auth-permission/models/employee';
 
-
-export abstract class BaseService<
-  T extends EntityBase,
-> implements IBaseService<T>
+export abstract class BaseService<T extends EntityBase>
+  implements IBaseService<T>
 {
   constructor(
     private readonly repository: Repository<T>,
+    @Inject(REQUEST) public readonly request: any,
+    private readonly _authService: AuthJwtService,
   ) {}
 
   async findAll(condition = { isDeleted: false }): Promise<T[]> {
-    const where: FindManyOptions<T> = { where: condition as FindOptionsWhere<T> };
+    const where: FindManyOptions<T> = {
+      where: condition as FindOptionsWhere<T>,
+    };
     return this.repository.find(where);
   }
 
@@ -22,17 +28,19 @@ export abstract class BaseService<
     const queryTake = Number(take) || PaginationConstants.DEFAULT_TAKE;
     const querySkip = Number(skip) || PaginationConstants.DEFAULT_SKIP;
 
-    const where: FindOptionsWhere<T> = { isDeleted: condition.isDeleted } as FindOptionsWhere<T>;
+    const where: FindOptionsWhere<T> = {
+      isDeleted: condition.isDeleted,
+    } as FindOptionsWhere<T>;
 
     const [result, total] = await this.repository.findAndCount({
       where,
       //order: { createdAt: -1 },
       take: queryTake,
-      skip: querySkip
+      skip: querySkip,
     });
     return {
       data: result,
-      count: total
+      count: total,
     };
   }
 
@@ -49,10 +57,11 @@ export abstract class BaseService<
    */
   async create(data: T): Promise<T> {
     data.isDeleted = false;
-    // if (this.request.user) {
-      data.userCreated = 1;
-      data.userUpdated = 1;
-    // }
+    const user = this.getUser();
+    if (user) {
+      data.userCreated = +user.Empleado;
+      data.userUpdated = +user.Empleado;
+    }
     const entity = this.repository.create(data);
     return this.repository.save(entity);
   }
@@ -64,34 +73,36 @@ export abstract class BaseService<
    * @returns : The modified entity
    */
   async update(id: number, data: T): Promise<T> {
-    // if (this.request.user) {
-      data.userUpdated = 1;
-    // }
+    const user = this.getUser();
+    if (user) {
+      data.userUpdated = +user.Empleado;
+    }
     data = await this.repository.preload({
       id: (await findByField(this.repository, { id: id }, true)).id,
-      ...data
+      ...data,
     } as any);
 
     return this.repository.save(data as any);
   }
 
-  async delete(id: number): Promise<void> {
-    await findByField(this.repository, { id }, true);
-    await this.repository.delete(id);
-  }
+  // async delete(id: number): Promise<void> {
+  //   await findByField(this.repository, { id }, true);
+  //   await this.repository.delete(id);
+  // }
 
   /**
    *
    * @param id : number of the given entity
-   * This method applies logical deletion or restoration from the database by setting the isDeleted to true or false
+   * This method applies logical deletion
    */
-  async updateStatus(id: number, isDeleted: boolean): Promise<T> {
+  async delete(id: number): Promise<T> {
     let entity = {} as T;
     entity = await findByField(this.repository, { id }, true);
-    entity.isDeleted = isDeleted;
-    // if (this.request.user) {
-      entity.userUpdated = 1;
-    // }
+    entity.isDeleted = true;
+    const user = this.getUser();
+    if (user) {
+      entity.userUpdated = +user.Empleado;
+    }
     return await this.repository.save(entity as any);
   }
 
@@ -113,42 +124,47 @@ export abstract class BaseService<
     }
   }
 
-//   async search(data: QueryDto<T>): Promise<SearchResponse<T>> {
-//     const query: FindManyOptions<T> = { where: {} }; // initialize query to an empty object
+  //   async search(data: QueryDto<T>): Promise<SearchResponse<T>> {
+  //     const query: FindManyOptions<T> = { where: {} }; // initialize query to an empty object
 
-//     const queryTake = +data.take || PaginationConstants.DEFAULT_TAKE;
-//     const querySkip = +data.skip || PaginationConstants.DEFAULT_SKIP;
-//     const filterCriteria = data.attributes.map(attribute => {
-//       return {
-//         [attribute.key]:
-//           attribute.comparator == ComparatorEnum.EQUALS
-//             ? attribute.value
-//             : attribute.comparator == ComparatorEnum.LIKE
-//             ? RegExp(`^${attribute.value}`, 'i')
-//             : attribute.value
-//       };
-//     });
-//     query.where =
-//       data.type.toUpperCase() === ComparaisonTypeEnum.AND ? { $and: filterCriteria } : { $or: filterCriteria };
-//     const [result, total] = await this.repository.findAndCount({
-//       where: query.where,
-//       order: data.orders,
-//       ...(data.isPaginable == true || data.isPaginable == undefined
-//         ? {
-//             take: queryTake,
-//             skip: querySkip
-//           }
-//         : {})
-//     });
-//     return {
-//       data: result,
-//       count: total,
-//       ...(data.isPaginable == true || data.isPaginable == undefined
-//         ? {
-//             page: querySkip,
-//             totalPages: total == queryTake ? Math.trunc(total / queryTake) : Math.trunc(total / queryTake + 1)
-//           }
-//         : {})
-//     };
-//   }
+  //     const queryTake = +data.take || PaginationConstants.DEFAULT_TAKE;
+  //     const querySkip = +data.skip || PaginationConstants.DEFAULT_SKIP;
+  //     const filterCriteria = data.attributes.map(attribute => {
+  //       return {
+  //         [attribute.key]:
+  //           attribute.comparator == ComparatorEnum.EQUALS
+  //             ? attribute.value
+  //             : attribute.comparator == ComparatorEnum.LIKE
+  //             ? RegExp(`^${attribute.value}`, 'i')
+  //             : attribute.value
+  //       };
+  //     });
+  //     query.where =
+  //       data.type.toUpperCase() === ComparaisonTypeEnum.AND ? { $and: filterCriteria } : { $or: filterCriteria };
+  //     const [result, total] = await this.repository.findAndCount({
+  //       where: query.where,
+  //       order: data.orders,
+  //       ...(data.isPaginable == true || data.isPaginable == undefined
+  //         ? {
+  //             take: queryTake,
+  //             skip: querySkip
+  //           }
+  //         : {})
+  //     });
+  //     return {
+  //       data: result,
+  //       count: total,
+  //       ...(data.isPaginable == true || data.isPaginable == undefined
+  //         ? {
+  //             page: querySkip,
+  //             totalPages: total == queryTake ? Math.trunc(total / queryTake) : Math.trunc(total / queryTake + 1)
+  //           }
+  //         : {})
+  //     };
+  //   }
+
+  private getUser(): Employee {
+    const token = this.request.headers.authorization;
+    return this._authService.validateToken(token);
+  }
 }

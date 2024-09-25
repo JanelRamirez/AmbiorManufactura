@@ -15,6 +15,7 @@ export class AuthJwtService {
 
   validateToken(token: string): Employee {
     try {
+      token = token.replace('Bearer ', '');
       const authConfig: IAuthConfig = this.cnfService.get(ConfigKey.Auth);
       const key = authConfig.secret;
       const decodedString = Buffer.from(key, 'base64');
@@ -22,7 +23,6 @@ export class AuthJwtService {
         ignoreExpiration: false,
         secret: decodedString,
       });
-      this.setEmployee(employee);
       return employee;
     } catch (error) {
       throw new HttpException(
@@ -33,12 +33,5 @@ export class AuthJwtService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-  }
-
-  setEmployee(employee: Employee) {
-    this.employee = employee;
-  }
-  getEmployee(): Employee {
-    return this.employee;
   }
 }

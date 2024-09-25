@@ -4,8 +4,8 @@ export interface IBaseService<T> {
   create(entity: T): Promise<T>;
   update(_id: number, entity: T): Promise<T>;
   findOne(_id: number): Promise<T>;
-  updateStatus(_id: number, isDeleted: boolean): Promise<T>;
-  delete(_id: number): Promise<void>;
+  delete(_id: number): Promise<T>;
+  // delete(_id: number): Promise<void>;
   clear(): Promise<void>;
   //   search(data?: QueryDto<T>);
 }

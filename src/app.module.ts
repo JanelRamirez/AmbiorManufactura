@@ -13,11 +13,12 @@ import { EmpleadoModule } from './modules/empleado/empleado.module';
 
 import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthGuard } from './auth-permission/config/guards/jwt-auth.guard';
 import { RolesGuard } from './auth-permission/config/guards/role.guard';
 import { PermissionService } from './auth-permission/services/permission.service';
-import { AuthJwtService } from './auth-permission/services/auth-jwt.service';
+import { AuthPermissionModule } from './auth-permission/auth-permission.module';
+import { AuditModule } from './base/audit/audit-log.module';
+import { AuditListener } from './base/audit/audit-log.listener';
 
 @Module({
   imports: [
@@ -38,8 +39,9 @@ import { AuthJwtService } from './auth-permission/services/auth-jwt.service';
       synchronize: true,
       options: { encrypt: false },
       autoLoadEntities: true,
+      subscribers: [AuditListener],
     }),
-    JwtModule,
+    AuthPermissionModule,
     /* StorageModule.forRoot({
       driver: process.env.STORAGE_DRIVER as StorageDriver,
       s3Config: {
@@ -58,7 +60,8 @@ import { AuthJwtService } from './auth-permission/services/auth-jwt.service';
     MailPoolModule,
     AuthModule,
     TestModule,
-    EmpleadoModule
+    EmpleadoModule,
+    AuditModule
   ],
   providers: [
     {
@@ -69,8 +72,7 @@ import { AuthJwtService } from './auth-permission/services/auth-jwt.service';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    PermissionService,
-    AuthJwtService
+    PermissionService
   ],
 })
 export class AppModule {}

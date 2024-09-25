@@ -31,7 +31,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const ctx = context.switchToHttp();
     this.request = ctx.getRequest();
-    const token = this.request.headers?.authorization?.replace('Bearer ', '');
+    const token = this.request.headers?.authorization;
 
     if (!token) {
       //cambiar por el translate
