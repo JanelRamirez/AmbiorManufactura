@@ -3,9 +3,9 @@ import { EntityBase } from './base.entity';
 import { IBaseService } from './interfaces/base-service.interface';
 import { findByField } from './utils/find-by-field.utils';
 import { PaginationConstants } from './constants/pagination.enum';
-import { Inject } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
-import { AuthJwtService } from 'src/auth-permission/services/auth-jwt.service';
+// import { Inject } from '@nestjs/common';
+// import { REQUEST } from '@nestjs/core';
+// import { AuthJwtService } from 'src/auth-permission/services/auth-jwt.service';
 import { Employee } from 'src/auth-permission/models/employee';
 
 export abstract class BaseService<T extends EntityBase>
@@ -13,8 +13,8 @@ export abstract class BaseService<T extends EntityBase>
 {
   constructor(
     private readonly repository: Repository<T>,
-    @Inject(REQUEST) public readonly request: any,
-    private readonly _authService: AuthJwtService,
+    // @Inject(REQUEST) public readonly request: any,
+    // private readonly _authService: AuthJwtService,
   ) {}
 
   async findAll(condition = { isDeleted: false }): Promise<T[]> {
@@ -141,7 +141,8 @@ export abstract class BaseService<T extends EntityBase>
   //   }
 
   private getUser(): Employee {
-    const token = this.request.headers.authorization;
-    return this._authService.validateToken(token);
+    // const token = this.request.headers.authorization;
+    // return this._authService.validateToken(token);
+    return null;
   }
 }
