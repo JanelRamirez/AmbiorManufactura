@@ -23,10 +23,12 @@ export abstract class EntityBase {
   @BeforeUpdate()
   private beforeActions() {
     this.lastUpdateAt = new Date();
+    this.userUpdated = this.userUpdated || 0;
   }
 
   @BeforeInsert()
   private beforeInsertActions() {
     this.createdAt = new Date();
+    this.userCreated = this.userCreated || 0;
   }
 }
