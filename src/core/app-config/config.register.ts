@@ -6,6 +6,7 @@ import { IAppConfig } from './interfaces/app-config.interface';
 import { StorageDriver } from '../storage/types/storage-driver.enum';
 import { IS3Config } from './interfaces/s3-config.interface';
 import { IAuthConfig } from './interfaces/auth-config.interface';
+import { IMailConfiguration } from './interfaces/mail-config.interface';
 
 const APPConfig = registerAs<IAppConfig>(ConfigKey.App, () => {
   return {
@@ -48,4 +49,11 @@ appId: +process.env.APP_ID
 
 }));
 
-export const configurations = [APPConfig, DBConfig, S3Config, AuthConfig];
+const MailConfig = registerAs<IMailConfiguration>(ConfigKey.Mail, () => ({
+  mail_action: process.env.MAIL_CENTER_ACTION_URL,
+  mail_url: process.env.MAIL_CENTER_URL,
+  mail_key: process.env.MAIL_CENTER_APP_KEY,
+  mail_secret: process.env.MAIL_CENTER_SECRET_KEY
+}));
+
+export const configurations = [APPConfig, DBConfig, S3Config, AuthConfig, MailConfig];

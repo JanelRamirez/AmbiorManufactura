@@ -18,6 +18,8 @@ import { RolesGuard } from './auth-permission/config/guards/role.guard';
 import { PermissionService } from './auth-permission/services/permission.service';
 import { AuthPermissionModule } from './auth-permission/auth-permission.module';
 import { AuditModule } from './base/audit/audit-log.module';
+import { CarModule } from './modules/car/car.module';
+import { AnimalModule } from './modules/animal/animal.module';
 
 @Module({
   imports: [
@@ -31,9 +33,9 @@ import { AuditModule } from './base/audit/audit-log.module';
       type: 'mssql',
       host: 'localhost',
       port: 1433,
-      username: 'eduardo.mendez',
-      password: 'Inicio01',
-      database: 'Test1',
+      username: 'emendez',
+      password: 'Dios0101',
+      database: 'Test01',
       entities: ['dist/**/*.toEntity.js'],
       synchronize: true,
       options: { encrypt: false },
@@ -59,7 +61,9 @@ import { AuditModule } from './base/audit/audit-log.module';
     AuthModule,
     TestModule,
     EmpleadoModule,
-    AuditModule
+    AuditModule,
+    CarModule,
+    AnimalModule
   ],
   providers: [
     {
