@@ -1,42 +1,68 @@
-import { Injectable } from '@nestjs/common';
 import { <ModuleName>CreateDto } from './dtos/create-<ModuleFile>.dto';
 import { <ModuleName>UpdateDto } from './dtos/update-<ModuleFile>.dto';
 import { <ModuleName>Entity } from './entity/<ModuleFile>.toEntity';
+import { <ModuleName>ResponseDto } from './dtos/response-<ModuleFile>.dto';
 import { BaseMapper } from 'src/base/base.mapper';
 import { InjectMapper } from '@automapper/nestjs';
+import { Injectable } from '@nestjs/common';
 import { Mapper } from '@automapper/core';
 
 @Injectable()
 export class <ModuleName>Mapper extends BaseMapper<
   <ModuleName>Entity,
   <ModuleName>CreateDto,
-  <ModuleName>UpdateDto
+  <ModuleName>UpdateDto,
+  <ModuleName>ResponseDto
 > {
   constructor(@InjectMapper() private mapper: Mapper) {
     super(mapper);
   }
 
-  override mapToDto(entity: <ModuleName>Entity): <ModuleName>CreateDto {
-    return this.mapper.map<<ModuleName>Entity, <ModuleName>CreateDto>(entity, <ModuleName>Entity, <ModuleName>CreateDto);
-  }
-
-  override mapToUpdateDto(entity: <ModuleName>Entity): <ModuleName>UpdateDto {
-    return this.mapper.map<<ModuleName>Entity, <ModuleName>UpdateDto>(entity, null, null);
-  }
-
-  override mapToEntity(dto: <ModuleName>CreateDto): <ModuleName>Entity {
-    return this.mapper.map<<ModuleName>CreateDto, <ModuleName>Entity>(dto, <ModuleName>CreateDto, <ModuleName>Entity);
-  }
-
-  override arrayMapToDto(entity: <ModuleName>Entity[]): <ModuleName>CreateDto[] {
-    return this.mapper.mapArray<<ModuleName>Entity, <ModuleName>CreateDto>(
+  override mapEntityToResponse(entity: <ModuleName>Entity): <ModuleName>ResponseDto {
+    return this.mapper.map<<ModuleName>Entity, <ModuleName>ResponseDto>(
       entity,
       <ModuleName>Entity,
-      <ModuleName>CreateDto,
+      <ModuleName>ResponseDto,
     );
   }
 
-  override arrayMapToEntity(dto: <ModuleName>CreateDto[]): <ModuleName>Entity[] {
-    return this.mapper.mapArray<<ModuleName>CreateDto, <ModuleName>Entity>(dto, <ModuleName>CreateDto, <ModuleName>Entity);
+  override mapArrayToResponse(entity: <ModuleName>Entity[]): <ModuleName>ResponseDto[] {
+    return this.mapper.mapArray<<ModuleName>Entity, <ModuleName>ResponseDto>(
+      entity,
+      <ModuleName>Entity,
+      <ModuleName>ResponseDto,
+    );
+  }
+
+  override mapUpdateDtoToEntity(entity: <ModuleName>UpdateDto): <ModuleName>Entity {
+    return this.mapper.map<<ModuleName>UpdateDto, <ModuleName>Entity>(
+      entity,
+      <ModuleName>UpdateDto,
+      <ModuleName>Entity,
+    );
+  }
+
+  override mapCreateDtoToEntity(dto: <ModuleName>CreateDto): <ModuleName>Entity {
+    return this.mapper.map<<ModuleName>CreateDto, <ModuleName>Entity>(
+      dto,
+      <ModuleName>CreateDto,
+      <ModuleName>Entity,
+    );
+  }
+
+  override mapCreateArrayToEntity(dto: <ModuleName>CreateDto[]): <ModuleName>Entity[] {
+    return this.mapper.mapArray<<ModuleName>CreateDto, <ModuleName>Entity>(
+      dto,
+      <ModuleName>CreateDto,
+      <ModuleName>Entity,
+    );
+  }
+
+  override mapCreateUpdateArrayToEntity(dto: <ModuleName>UpdateDto[]): <ModuleName>Entity[] {
+    return this.mapper.mapArray<<ModuleName>UpdateDto, <ModuleName>Entity>(
+      dto,
+      <ModuleName>UpdateDto,
+      <ModuleName>Entity,
+    );
   }
 }

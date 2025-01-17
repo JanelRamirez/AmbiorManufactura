@@ -4,6 +4,7 @@ import { BaseController } from 'src/base/base.controller';
 import { <ModuleName>Entity } from './entity/<ModuleFile>.toEntity';
 import { <ModuleName>CreateDto } from './dtos/create-<ModuleFile>.dto';
 import { <ModuleName>UpdateDto } from './dtos/update-<ModuleFile>.dto';
+import { <ModuleName>ResponseDto } from './dtos/response-<ModuleFile>.dto';
 import { <ModuleName>Service } from './service/<ModuleFile>.service';
 import { <ModuleName>Mapper } from './<ModuleFile>.mapper';
 import { <ModuleName>Validator } from './<ModuleFile>.validator';
@@ -15,7 +16,8 @@ import { <ModuleName>Validator } from './<ModuleFile>.validator';
 export class <ModuleName>Controller extends BaseController<
   <ModuleName>Entity,
   <ModuleName>CreateDto,
-  <ModuleName>UpdateDto
+  <ModuleName>UpdateDto,
+  <ModuleName>ResponseDto
 > 
 {
   constructor(

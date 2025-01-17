@@ -1,10 +1,11 @@
-import { createMap, Mapper } from "@automapper/core";
+import { createMap, Mapper, forMember, ignore } from "@automapper/core";
 import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
 import { Injectable } from "@nestjs/common";
 import { MappingProfile } from "src/core/shared/decorators/mapping-profile.decorator";
 import { <ModuleName>CreateDto } from "./dtos/create-<ModuleFile>.dto";
 import { <ModuleName>UpdateDto } from "./dtos/update-<ModuleFile>.dto";
 import { <ModuleName>Entity } from "./entity/<ModuleFile>.toEntity";
+import { <ModuleName>ResponseDto } from './dtos/response-<ModuleFile>.dto';
 
 
 @Injectable()
@@ -16,10 +17,14 @@ export class <ModuleName>Profile extends AutomapperProfile {
 
   override get profile() {
     return (mapper: Mapper) => {
-      createMap(mapper, <ModuleName>Entity, <ModuleName>CreateDto);
-      createMap(mapper, <ModuleName>CreateDto, <ModuleName>Entity);
-      createMap(mapper, <ModuleName>UpdateDto, <ModuleName>Entity);
-      createMap(mapper, <ModuleName>Entity, <ModuleName>UpdateDto);
+      // Mapping from <ModuleName>Entity to <ModuleName>ResponseDto
+      createMap(mapper, <ModuleName>Entity, <ModuleName>ResponseDto);
+
+      // Mapping from <ModuleName>CreateDto to <ModuleName>Entity with custom rules
+      createMap(mapper, <ModuleName>CreateDto, <ModuleName>Entity, forMember((d) => d.id, ignore()));
+
+      // Mapping from <ModuleName>UpdateDto to <ModuleName>Entity with custom rules
+      createMap(mapper, <ModuleName>UpdateDto, <ModuleName>Entity, forMember((d) => d.id, ignore()));
     };
   }
 }
