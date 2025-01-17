@@ -1,5 +1,5 @@
 export interface IBaseService<T> {
-  findAll(): Promise<T[]>;
+  findAll(condtion: Partial<T>): Promise<T[]>;
   paginate(take: number, skip: number): Promise<T[]>;
   create(entity: T): Promise<T>;
   update(_id: number, entity: T): Promise<T>;

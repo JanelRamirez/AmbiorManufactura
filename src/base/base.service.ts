@@ -17,7 +17,8 @@ export abstract class BaseService<T extends EntityBase>
     // private readonly _authService: AuthJwtService,
   ) {}
 
-  async findAll(condition = { isDeleted: false }): Promise<T[]> {
+  async findAll(condition: Partial<T>): Promise<T[]> {
+    condition = { ...condition, isDeleted: false };
     const where: FindManyOptions<T> = {
       where: condition as FindOptionsWhere<T>,
     };

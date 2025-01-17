@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
 } from '@nestjs/common';
 import { EntityBase } from './base.entity';
@@ -16,17 +17,19 @@ import { BaseUpdateDto } from './dtos/update-base.dto';
 import { ValidatorBase } from './base.validator';
 import { BaseMapper } from './base.mapper';
 import { isEmptyObject } from './utils/empty-object.util';
+import { ResponseBaseDto } from './dtos/response-base.dto';
 
 export class BaseController<
   TEntity extends EntityBase,
   TDto extends BaseCreateDto,
   TUpdateDto extends BaseUpdateDto,
+  TResponseDto extends ResponseBaseDto
 > {
-  private readonly _mapper: BaseMapper<TEntity, TDto, TUpdateDto>;
+  private readonly _mapper: BaseMapper<TEntity, TDto, TUpdateDto, TResponseDto>;
   private readonly _validator: ValidatorBase<TEntity>;
   constructor(
     private readonly baseService: BaseService<TEntity>,
-    mapper: BaseMapper<TEntity, TDto, TUpdateDto>,
+    mapper: BaseMapper<TEntity, TDto, TUpdateDto, TResponseDto>,
     validator: ValidatorBase<TEntity>,
   ) {
     this._mapper = mapper;
@@ -34,9 +37,9 @@ export class BaseController<
   }
 
   @Post()
-  async create(@Request() req: any, @Body() dto: TDto) {
+  async create(@Request() req: any, @Body() dto: TDto): Promise<TResponseDto> {
     try {
-      const entity: TEntity = this._mapper.mapToEntity(dto);
+      const entity: TEntity = this._mapper.mapCreateDtoToEntity(dto);
       const validationErrors = await this._validator.validateAsync(entity);
       if (!isEmptyObject(validationErrors))
         throw new HttpException(
@@ -47,7 +50,7 @@ export class BaseController<
           HttpStatus.BAD_REQUEST,
         );
       const result =  await this.baseService.create(entity).then((res) => {
-        return this._mapper.mapToDto(res);
+        return this._mapper.mapEntityToResponse(res);
       }).catch((err) => {
         throw new HttpException(
           `Error fetching all: ${err.message}`,
@@ -61,12 +64,12 @@ export class BaseController<
   }
 
   @Get()
-  async findAll(): Promise<TDto[]> {
+  async findAll(@Query() condition: Partial<TEntity>): Promise<TResponseDto[]> {
     try {
       const data = await this.baseService
-        .findAll()
+        .findAll(condition)
         .then((res) => {
-          return this._mapper.arrayMapToDto(res);
+          return this._mapper.mapArrayToResponse(res);
         })
         .catch((err) => {
           throw new HttpException(
@@ -115,12 +118,12 @@ export class BaseController<
   // }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<TDto> {
+  async findOne(@Param('id') id: string): Promise<TResponseDto> {
     try {
       const data = await this.baseService
         .findOne(+id)
         .then((res) => {
-          return this._mapper.mapToDto(res);
+          return this._mapper.mapEntityToResponse(res);
         })
         .catch((err) => {
           throw new HttpException(
@@ -135,9 +138,9 @@ export class BaseController<
   }
 
   @Patch(':id')
-  async update(@Request() req: any, @Param('id') id: string, @Body() dto: TDto) {
+  async update(@Request() req: any, @Param('id') id: string, @Body() dto: TUpdateDto): Promise<TResponseDto> {
     try {
-      const entity: TEntity = this._mapper.mapToEntity(dto);
+      const entity: TEntity = this._mapper.mapUpdateDtoToEntity(dto);
       this.removeUndefinedAndIdProperties(entity);
 
       const validationErrors = await this._validator.validateAsync(entity);
@@ -151,7 +154,7 @@ export class BaseController<
         );
       }
       const result = await this.baseService.update(+id, entity).then((res) => {
-        return this._mapper.mapToDto(res);
+        return this._mapper.mapEntityToResponse(res);
       }).catch((err) => {
         throw new HttpException(
           `Error fetching one: ${err.message}`,

@@ -1,7 +1,9 @@
+import { AutoMap } from "@automapper/classes";
 import { BeforeInsert, BeforeUpdate, Column, PrimaryGeneratedColumn } from "typeorm";
 
 export abstract class EntityBase {
   @PrimaryGeneratedColumn()
+  @AutoMap()
   public id: number;
 
   @Column()
