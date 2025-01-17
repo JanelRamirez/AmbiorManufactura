@@ -67,6 +67,21 @@ export abstract class BaseService<T extends EntityBase>
 
   /**
    *
+   * @param data : the array of CreateDTO of the submitted entity
+   * @returns : The created entity
+   */
+  async createRange(data: Array<T>): Promise<Array<T>> {
+    const user = this.getUser();
+    if (user) {
+      // data.userCreated = +user.Empleado;
+      // data.userUpdated = +user.Empleado;
+    }
+    const entity = this.repository.create(data);
+    return this.repository.save(entity);
+  }
+
+  /**
+   *
    * @param id : the ID of the entity
    * @param dto : the DTO to be assigned for the entity
    * @returns : The modified entity

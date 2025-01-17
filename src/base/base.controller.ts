@@ -26,7 +26,7 @@ export class BaseController<
   TResponseDto extends ResponseBaseDto
 > {
   private readonly _mapper: BaseMapper<TEntity, TDto, TUpdateDto, TResponseDto>;
-  private readonly _validator: ValidatorBase<TEntity>;
+  private readonly _validator: ValidatorBase<TEntity | TEntity[]>;
   constructor(
     private readonly baseService: BaseService<TEntity>,
     mapper: BaseMapper<TEntity, TDto, TUpdateDto, TResponseDto>,
@@ -51,6 +51,33 @@ export class BaseController<
         );
       const result =  await this.baseService.create(entity).then((res) => {
         return this._mapper.mapEntityToResponse(res);
+      }).catch((err) => {
+        throw new HttpException(
+          `Error fetching all: ${err.message}`,
+          err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      });
+      return result;
+    } catch (ex) {
+      throw ex;
+    }
+  }
+
+  @Post('/addRange')
+  async createRange(@Request() req: any, @Body() dto: Array<TDto>): Promise<Array<TResponseDto>> {
+    try {
+      const entity: Array<TEntity> = this._mapper.mapCreateArrayToEntity(dto);
+      const validationErrors = await this._validator.validateAsync(entity);
+      if (!isEmptyObject(validationErrors))
+        throw new HttpException(
+          {
+            reason: 'Required fields were not provided.',
+            fields: validationErrors,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      const result =  await this.baseService.createRange(entity).then((res) => {
+        return this._mapper.mapArrayToResponse(res);
       }).catch((err) => {
         throw new HttpException(
           `Error fetching all: ${err.message}`,
