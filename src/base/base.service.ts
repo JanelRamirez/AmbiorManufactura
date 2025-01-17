@@ -1,4 +1,4 @@
-import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, Repository, UpdateResult } from 'typeorm';
 import { EntityBase } from './base.entity';
 import { IBaseService } from './interfaces/base-service.interface';
 import { findByField } from './utils/find-by-field.utils';
@@ -18,19 +18,18 @@ export abstract class BaseService<T extends EntityBase>
   ) {}
 
   async findAll(condition: Partial<T>): Promise<T[]> {
-    condition = { ...condition, isDeleted: false };
     const where: FindManyOptions<T> = {
       where: condition as FindOptionsWhere<T>,
     };
     return this.repository.find(where);
   }
 
-  async paginate(take, skip, condition = { isDeleted: false }): Promise<any> {
+  async paginate(take, skip, condition: Partial<T>): Promise<any> {
     const queryTake = Number(take) || PaginationConstants.DEFAULT_TAKE;
     const querySkip = Number(skip) || PaginationConstants.DEFAULT_SKIP;
 
     const where: FindOptionsWhere<T> = {
-      isDeleted: condition.isDeleted,
+      ...condition
     } as FindOptionsWhere<T>;
 
     const [result, total] = await this.repository.findAndCount({
@@ -49,15 +48,14 @@ export abstract class BaseService<T extends EntityBase>
     // throws error 404 if not found
     const entity = await findByField(this.repository, { id: +id }, true);
     return entity;
-    //return this.repository.findOne(id);
   }
+
   /**
    *
    * @param data : the CreateDTO of the submitted entity
    * @returns : The created entity
    */
   async create(data: T): Promise<T> {
-    data.isDeleted = false;
     const user = this.getUser();
     if (user) {
       data.userCreated = +user.Empleado;
@@ -91,15 +89,8 @@ export abstract class BaseService<T extends EntityBase>
    * @param id : number of the given entity
    * This method applies logical deletion
    */
-  async delete(id: number): Promise<T> {
-    let entity = {} as T;
-    entity = await findByField(this.repository, { id }, true);
-    entity.isDeleted = true;
-    const user = this.getUser();
-    if (user) {
-      entity.userUpdated = +user.Empleado;
-    }
-    return await this.repository.save(entity as any);
+  async delete(id: number): Promise<UpdateResult> {
+    return await this.repository.softDelete(id);
   }
 
   //   async search(data: QueryDto<T>): Promise<SearchResponse<T>> {
