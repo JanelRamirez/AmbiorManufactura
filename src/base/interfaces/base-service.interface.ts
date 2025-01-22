@@ -1,3 +1,4 @@
+import { Employee } from "src/auth-permission/models/employee";
 import { UpdateResult } from "typeorm";
 
 export interface IBaseService<T> {
@@ -8,6 +9,7 @@ export interface IBaseService<T> {
   update(_id: number, entity: T): Promise<T>;
   findOne(_id: number): Promise<T>;
   delete(_id: number): Promise<UpdateResult>;
+  assignUser(entity: T | T[], user: Employee, isCreate: boolean): T | T[];
   // delete(_id: number): Promise<void>;
   //   search(data?: QueryDto<T>);
 }

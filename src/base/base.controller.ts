@@ -23,7 +23,7 @@ export class BaseController<
   TEntity extends EntityBase,
   TDto extends BaseCreateDto,
   TUpdateDto extends BaseUpdateDto,
-  TResponseDto extends ResponseBaseDto
+  TResponseDto extends ResponseBaseDto,
 > {
   private readonly _mapper: BaseMapper<TEntity, TDto, TUpdateDto, TResponseDto>;
   private readonly _validator: ValidatorBase<TEntity | TEntity[]>;
@@ -40,6 +40,7 @@ export class BaseController<
   async create(@Request() req: any, @Body() dto: TDto): Promise<TResponseDto> {
     try {
       const entity: TEntity = this._mapper.mapCreateDtoToEntity(dto);
+      this.baseService.assignUser(entity, req.user);
       const validationErrors = await this._validator.validateAsync(entity);
       if (!isEmptyObject(validationErrors))
         throw new HttpException(
@@ -49,14 +50,17 @@ export class BaseController<
           },
           HttpStatus.BAD_REQUEST,
         );
-      const result =  await this.baseService.create(entity).then((res) => {
-        return this._mapper.mapEntityToResponse(res);
-      }).catch((err) => {
-        throw new HttpException(
-          `Error fetching all: ${err.message}`,
-          err.status || HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      });
+      const result = await this.baseService
+        .create(entity)
+        .then((res) => {
+          return this._mapper.mapEntityToResponse(res);
+        })
+        .catch((err) => {
+          throw new HttpException(
+            `Error fetching all: ${err.message}`,
+            err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        });
       return result;
     } catch (ex) {
       throw ex;
@@ -64,9 +68,13 @@ export class BaseController<
   }
 
   @Post('/addRange')
-  async createRange(@Request() req: any, @Body() dto: Array<TDto>): Promise<Array<TResponseDto>> {
+  async createRange(
+    @Request() req: any,
+    @Body() dto: Array<TDto>,
+  ): Promise<Array<TResponseDto>> {
     try {
       const entity: Array<TEntity> = this._mapper.mapCreateArrayToEntity(dto);
+      this.baseService.assignUser(entity, req.user);
       const validationErrors = await this._validator.validateAsync(entity);
       if (!isEmptyObject(validationErrors))
         throw new HttpException(
@@ -76,14 +84,17 @@ export class BaseController<
           },
           HttpStatus.BAD_REQUEST,
         );
-      const result =  await this.baseService.createRange(entity).then((res) => {
-        return this._mapper.mapArrayToResponse(res);
-      }).catch((err) => {
-        throw new HttpException(
-          `Error fetching all: ${err.message}`,
-          err.status || HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      });
+      const result = await this.baseService
+        .createRange(entity)
+        .then((res) => {
+          return this._mapper.mapArrayToResponse(res);
+        })
+        .catch((err) => {
+          throw new HttpException(
+            `Error fetching all: ${err.message}`,
+            err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        });
       return result;
     } catch (ex) {
       throw ex;
@@ -110,40 +121,7 @@ export class BaseController<
       throw ex;
     }
   }
-
-  // @Post('paginated')
-  // async findAllPaginated(
-  //   @Body() requestPaginated: RequestPaginated,
-  // ): Promise<ResponsePaginated<TDto>> {
-  //   try {
-  //     const data = await this.baseService
-  //       .findAllPaginated(requestPaginated)
-  //       .then((res) => {
-  //         const mappedResult = this._mapper.arrayMapToDto(res.results);
-  //         const result = new ResponsePaginated<TDto>(
-  //           mappedResult,
-  //           res.totalItems,
-  //           res.totalItemsFiltered,
-  //           res.totalPages,
-  //           res.currentPage,
-  //           res.nextPage,
-  //           res.previousPage,
-  //         );
-  //         return result;
-  //       })
-  //       .catch((err) => {
-  //         throw new HttpException(
-  //           `Error fetching all: ${err.message}`,
-  //           err.status || HttpStatus.INTERNAL_SERVER_ERROR,
-  //         );
-  //       });
-
-  //     return data;
-  //   } catch (ex) {
-  //     throw ex;
-  //   }
-  // }
-
+  
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<TResponseDto> {
     try {
@@ -165,9 +143,14 @@ export class BaseController<
   }
 
   @Patch(':id')
-  async update(@Request() req: any, @Param('id') id: string, @Body() dto: TUpdateDto): Promise<TResponseDto> {
+  async update(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() dto: TUpdateDto,
+  ): Promise<TResponseDto> {
     try {
       const entity: TEntity = this._mapper.mapUpdateDtoToEntity(dto);
+      this.baseService.assignUser(entity, req.user, false);
       this.removeUndefinedAndIdProperties(entity);
 
       const validationErrors = await this._validator.validateAsync(entity);
@@ -180,14 +163,17 @@ export class BaseController<
           HttpStatus.BAD_REQUEST,
         );
       }
-      const result = await this.baseService.update(+id, entity).then((res) => {
-        return this._mapper.mapEntityToResponse(res);
-      }).catch((err) => {
-        throw new HttpException(
-          `Error fetching one: ${err.message}`,
-          err.status || HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      });
+      const result = await this.baseService
+        .update(+id, entity)
+        .then((res) => {
+          return this._mapper.mapEntityToResponse(res);
+        })
+        .catch((err) => {
+          throw new HttpException(
+            `Error fetching one: ${err.message}`,
+            err.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        });
       return result;
     } catch (ex) {
       throw ex;

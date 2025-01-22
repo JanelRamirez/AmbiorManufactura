@@ -8,13 +8,14 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/public-route.decorator';
 import { AuthJwtService } from 'src/auth-permission/services/auth-jwt.service';
+import { Employee } from 'src/auth-permission/models/employee';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   private request = null;
   constructor(
     private reflector: Reflector,
-    private authService: AuthJwtService
+    private authService: AuthJwtService,
   ) {
     super();
   }
@@ -41,7 +42,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       );
     }
 
-    const payload = this.authService.validateToken(token);
+    const payload: Employee = this.authService.validateToken(token);
+    this.request.user = payload;
 
     if (!payload) {
       //cambiar por el translate

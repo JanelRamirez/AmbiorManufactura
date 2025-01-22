@@ -3,18 +3,14 @@ import { EntityBase } from './base.entity';
 import { IBaseService } from './interfaces/base-service.interface';
 import { findByField } from './utils/find-by-field.utils';
 import { PaginationConstants } from './constants/pagination.enum';
-// import { Inject } from '@nestjs/common';
-// import { REQUEST } from '@nestjs/core';
-// import { AuthJwtService } from 'src/auth-permission/services/auth-jwt.service';
 import { Employee } from 'src/auth-permission/models/employee';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export abstract class BaseService<T extends EntityBase>
   implements IBaseService<T>
 {
   constructor(
-    private readonly repository: Repository<T>,
-    // @Inject(REQUEST) public readonly request: any,
-    // private readonly _authService: AuthJwtService,
+    private readonly repository: Repository<T>
   ) {}
 
   async findAll(condition: Partial<T>): Promise<T[]> {
@@ -56,11 +52,6 @@ export abstract class BaseService<T extends EntityBase>
    * @returns : The created entity
    */
   async create(data: T): Promise<T> {
-    const user = this.getUser();
-    if (user) {
-      data.userCreated = +user.Empleado;
-      data.userUpdated = +user.Empleado;
-    }
     const entity = this.repository.create(data);
     return this.repository.save(entity);
   }
@@ -71,11 +62,6 @@ export abstract class BaseService<T extends EntityBase>
    * @returns : The created entity
    */
   async createRange(data: Array<T>): Promise<Array<T>> {
-    const user = this.getUser();
-    if (user) {
-      // data.userCreated = +user.Empleado;
-      // data.userUpdated = +user.Empleado;
-    }
     const entity = this.repository.create(data);
     return this.repository.save(entity);
   }
@@ -87,10 +73,6 @@ export abstract class BaseService<T extends EntityBase>
    * @returns : The modified entity
    */
   async update(id: number, data: T): Promise<T> {
-    const user = this.getUser();
-    if (user) {
-      data.userUpdated = +user.Empleado;
-    }
     data = await this.repository.preload({
       id: (await findByField(this.repository, { id: id }, true)).id,
       ...data,
@@ -108,48 +90,43 @@ export abstract class BaseService<T extends EntityBase>
     return await this.repository.softDelete(id);
   }
 
-  //   async search(data: QueryDto<T>): Promise<SearchResponse<T>> {
-  //     const query: FindManyOptions<T> = { where: {} }; // initialize query to an empty object
+  /**
+ * Assigns user information (creator or updater) to one or more entities.
+ * This method can handle both a single entity and an array of entities.
+ *
+ * @param entity - The entity or array of entities to which the user information will be assigned.
+ * @param user - The user performing the operation. Must contain the `Empleado` identifier.
+ * @param isCreate - Indicates if the operation is a creation (`true`) or an update (`false`).
+ *                   Defaults to `true` (creation).
+ * @returns The entity or array of entities with the assigned user information.
+ * @throws HttpException - Throws an exception if the user is not defined.
+ */
+  assignUser(entity: T | T[], user: Employee, isCreate: boolean = true): T | T[] {
+    if (!user) 
+      throw new HttpException('User information is required.', HttpStatus.BAD_REQUEST);
+    
+    if(Array.isArray(entity)){
+      return entity.map((entity) => this.assignUserToEntity(entity, user, isCreate));
+    }else{
+      return this.assignUserToEntity(entity, user, isCreate);
+    }
+  }
 
-  //     const queryTake = +data.take || PaginationConstants.DEFAULT_TAKE;
-  //     const querySkip = +data.skip || PaginationConstants.DEFAULT_SKIP;
-  //     const filterCriteria = data.attributes.map(attribute => {
-  //       return {
-  //         [attribute.key]:
-  //           attribute.comparator == ComparatorEnum.EQUALS
-  //             ? attribute.value
-  //             : attribute.comparator == ComparatorEnum.LIKE
-  //             ? RegExp(`^${attribute.value}`, 'i')
-  //             : attribute.value
-  //       };
-  //     });
-  //     query.where =
-  //       data.type.toUpperCase() === ComparaisonTypeEnum.AND ? { $and: filterCriteria } : { $or: filterCriteria };
-  //     const [result, total] = await this.repository.findAndCount({
-  //       where: query.where,
-  //       order: data.orders,
-  //       ...(data.isPaginable == true || data.isPaginable == undefined
-  //         ? {
-  //             take: queryTake,
-  //             skip: querySkip
-  //           }
-  //         : {})
-  //     });
-  //     return {
-  //       data: result,
-  //       count: total,
-  //       ...(data.isPaginable == true || data.isPaginable == undefined
-  //         ? {
-  //             page: querySkip,
-  //             totalPages: total == queryTake ? Math.trunc(total / queryTake) : Math.trunc(total / queryTake + 1)
-  //           }
-  //         : {})
-  //     };
-  //   }
-
-  private getUser(): Employee {
-    // const token = this.request.headers.authorization;
-    // return this._authService.validateToken(token);
-    return null;
+  /**
+ * Assigns user information to a single entity.
+ * This method is used internally by `assignUser` to avoid logic duplication.
+ *
+ * @param entity - The entity to which the user information will be assigned.
+ * @param user - The user performing the operation. Must contain the `Empleado` identifier.
+ * @param isCreate - Indicates if the operation is a creation (`true`) or an update (`false`).
+ * @returns The entity with the assigned user information.
+ */
+  private assignUserToEntity(entity: T, user: Employee, isCretate: boolean): T {
+    if(isCretate){
+      entity.userCreated = +user.Empleado;
+    }else{
+      entity.userUpdated = +user.Empleado;
+    }
+    return entity;
   }
 }

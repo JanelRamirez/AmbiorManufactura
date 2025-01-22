@@ -1,5 +1,13 @@
-import { AutoMap } from "@automapper/classes";
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { AutoMap } from '@automapper/classes';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export abstract class EntityBase {
   @PrimaryGeneratedColumn()
@@ -7,7 +15,7 @@ export abstract class EntityBase {
   public id: number;
 
   @DeleteDateColumn()
-  public deletedDate: Date
+  public deletedDate: Date;
 
   @Column()
   public userCreated?: number;
@@ -15,20 +23,23 @@ export abstract class EntityBase {
   @CreateDateColumn()
   protected createdAt: Date;
 
-  @Column()
+  @Column({ nullable: true })
   public userUpdated?: number;
 
   @UpdateDateColumn()
   protected lastUpdateAt: Date;
 
-  @BeforeInsert()
   @BeforeUpdate()
   private beforeActions() {
-    this.userUpdated = this.userUpdated || 0;
+    if(!this.userUpdated){
+      throw new Error('userUpdated must be set');
+    }
   }
 
   @BeforeInsert()
   private beforeInsertActions() {
-    this.userCreated = this.userCreated || 0;
+    if(!this.userCreated){
+      throw new Error('userCreated must be set');
+    }
   }
 }
