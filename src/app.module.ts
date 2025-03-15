@@ -5,11 +5,9 @@ import { TranslationModule } from './core/translation/translation.module';
 import { MailPoolModule } from './core/mail-pool/mail-pool.module';
 import { SharedModule } from './core/shared/shared.module';
 import { AuthModule } from './core/auth/auth.module';
-import { TestModule } from './modules/test/test.module';
 import { LANGUAGES } from './core/translation/constants/languages.const';
 import { DatabaseModule } from './core/database/database.module';
 import { RestClientModule } from './core/rest-client/rest-client.module';
-import { EmpleadoModule } from './modules/empleado/empleado.module';
 
 import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
@@ -18,9 +16,12 @@ import { RolesGuard } from './auth-permission/config/guards/role.guard';
 import { PermissionService } from './auth-permission/services/permission.service';
 import { AuthPermissionModule } from './auth-permission/auth-permission.module';
 import { AuditModule } from './base/audit/audit-log.module';
+import { UserModule } from './modules/user/user.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
+    MongooseModule.forRoot('mongodb://admin:admin123@localhost:27017/ambiorDB?authSource=admin'),
     DatabaseModule.forRoot({
       autoRegisterModels: true,
     }),
@@ -31,46 +32,33 @@ import { AuditModule } from './base/audit/audit-log.module';
       type: 'mssql',
       host: 'localhost',
       port: 1433,
-      username: 'usr',
-      password: 'pss',
-      database: 'bd',
+      username: 'SA',
+      password: 'Janel@1234',
+      database: 'Ambior_Manufactura_SRL',
       entities: ['dist/**/*.toEntity.js'],
-      synchronize: true,
+      synchronize: true,//Ambiente de desarrollo
       options: { encrypt: false },
       autoLoadEntities: true,
     }),
     AuthPermissionModule,
-    /* StorageModule.forRoot({
-      driver: process.env.STORAGE_DRIVER as StorageDriver,
-      s3Config: {
-        endPoint: process.env.S3_END_POINT,
-        port: parseInt(process.env.S3_PORT, 10),
-        useSSL: process.env.S3_USE_SSL === 'true',
-        accessKey: process.env.S3_ACCESS_KEY,
-        secretKey: process.env.S3_SECRET_KEY,
-        objectLocking: process.env.S3_OBJECT_LOCKING === 'true',
-        retentionPeriod: parseInt(process.env.S3_RETENTION_PERIOD, 10),
-      },
-    }), */
     SharedModule.forRoot(),
     RestClientModule,
     AppConfigModule,
     MailPoolModule,
     AuthModule,
-    TestModule,
-    EmpleadoModule,
     AuditModule,
+    UserModule,
   ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
-    PermissionService
-  ],
+  // providers: [
+  //   {
+  //     provide: APP_GUARD,
+  //     useClass: JwtAuthGuard,
+  //   },
+  //   {
+  //     provide: APP_GUARD,
+  //     useClass: RolesGuard,
+  //   },
+  //   PermissionService
+  // ],
 })
 export class AppModule {}
