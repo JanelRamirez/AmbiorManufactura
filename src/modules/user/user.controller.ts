@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { BaseController } from 'src/base/base.controller';
 import { UserEntity } from './entity/user.toEntity';
@@ -8,9 +8,11 @@ import { UserResponseDto } from './dtos/response-user.dto';
 import { UserService } from './service/user.service';
 import { UserMapper } from './user.mapper';
 import { UserValidator } from './user.validator';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('api/user')
-@ApiTags('user')
+@Controller('api/users')
+@ApiTags('users')
+@UseGuards(AuthGuard('jwt'))
 export class UserController extends BaseController<
   UserEntity,
   UserCreateDto,

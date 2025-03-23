@@ -1,9 +1,10 @@
-import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/modules/user/service/user.service';
 import { UserCreateDto } from 'src/modules/user/dtos/create-user.dto';
 import { UserMapper } from 'src/modules/user/user.mapper';
 import { LocalAuthGuard } from './local.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -31,5 +32,14 @@ export class AuthController {
     }catch( err ){
       throw err;
     }
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @Get('validate-token')
+  validateToken(@Req() req) {
+    // Si el token es válido, el guard deja pasar y puedes usar req.user
+    return {
+      valid: true,
+      user: req.user,
+    };
   }
 }
